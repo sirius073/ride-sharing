@@ -31,6 +31,21 @@ spec:
                 configMapKeyRef:
                   key: GATEWAY_HTTP_ADDR
                   name: app-config
+            - name: TRIP_SERVICE_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: TRIP_SERVICE_URL
+                  name: app-config
+            - name: RABBITMQ_URL
+              valueFrom:
+                configMapKeyRef:
+                  key: RABBITMQ_URL
+                  name: app-config
+            - name: RABBITMQ_EXCHANGE
+              valueFrom:
+                configMapKeyRef:
+                  key: RABBITMQ_EXCHANGE
+                  name: app-config
 ---
 apiVersion: v1
 kind: Service

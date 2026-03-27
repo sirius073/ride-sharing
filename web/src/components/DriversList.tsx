@@ -25,7 +25,7 @@ export function DriverList({ trip, onPackageSelect, onCancel }: DriverListProps)
         <div className="space-y-4">
           {trip?.rideFares.map((fare) => {
             const Icon = PackagesMeta[fare.packageSlug].icon;
-            const price = fare.totalPriceInCents && `$${(fare.totalPriceInCents / 100).toFixed(2)}`
+            const price = `$${(fare.totalPriceInCents / 100).toFixed(2)}`
 
             return (
               <div

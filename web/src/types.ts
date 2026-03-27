@@ -2,10 +2,9 @@ export interface Trip {
     id: string;
     userID: string;
     status: string;
-    selectedFare: RouteFare;
+    selectedFare?: RouteFare;
     route: Route;
     driver?: Driver;
-    trip: Trip;
 }
 
 export interface RequestRideProps {
@@ -37,8 +36,8 @@ export interface RouteFare {
     id: string,
     packageSlug: CarPackageSlug,
     basePrice: number,
-    totalPriceInCents?: number,
-    expiresAt: Date,
+    totalPriceInCents: number,
+    expiresAt: string,
     route: Route,
 }
 

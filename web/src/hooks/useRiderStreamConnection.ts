@@ -1,6 +1,5 @@
 import { useEffect, useState } from 'react';
 import { WEBSOCKET_URL } from "../constants";
-import { Trip } from '../types';
 import { Driver, Coordinate } from '../types';
 import { PaymentEventSessionCreatedData, TripEvents, ServerWsMessage, isValidWsMessage, BackendEndpoints } from '../contracts';
 
@@ -8,7 +7,7 @@ export function useRiderStreamConnection(location: Coordinate, userID: string) {
   const [drivers, setDrivers] = useState<Driver[]>([]);
   const [tripStatus, setTripStatus] = useState<TripEvents | null>(null);
   const [paymentSession, setPaymentSession] = useState<PaymentEventSessionCreatedData | null>(null);
-  const [assignedDriver, setAssignedDriver] = useState<Trip["driver"] | null>(null);
+  const [assignedDriver, setAssignedDriver] = useState<Driver | null>(null);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
@@ -32,20 +31,20 @@ export function useRiderStreamConnection(location: Coordinate, userID: string) {
       const message = JSON.parse(event.data) as ServerWsMessage;
 
       if (!message || !isValidWsMessage(message)) {
-        setError(`Unknown message type "${message}", allowed types are: ${Object.values(TripEvents).join(', ')}`);
+        console.warn('Ignoring unknown websocket message', message);
         return;
       }
 
       switch (message.type) {
         case TripEvents.DriverLocation:
-          setDrivers(message.data);
+          setDrivers(Array.isArray(message.data) ? message.data : []);
           break;
         case TripEvents.PaymentSessionCreated:
           setPaymentSession(message.data);
           setTripStatus(message.type);
           break;
         case TripEvents.DriverAssigned:
-          setAssignedDriver(message.data.driver);
+          setAssignedDriver(message.data?.driver ?? null);
           setTripStatus(message.type);
           break;
         case TripEvents.Created:
@@ -58,7 +57,7 @@ export function useRiderStreamConnection(location: Coordinate, userID: string) {
     };
 
     ws.onclose = () => {
-      console.log('WebSocket closed');
+      console.log('Rider WebSocket closed');
     };
 
     ws.onerror = (event) => {
@@ -78,6 +77,8 @@ export function useRiderStreamConnection(location: Coordinate, userID: string) {
   const resetTripStatus = () => {
     setTripStatus(null);
     setPaymentSession(null);
+    setAssignedDriver(null);
+    setError(null);
   }
 
   return { drivers, assignedDriver, error, tripStatus, paymentSession, resetTripStatus };

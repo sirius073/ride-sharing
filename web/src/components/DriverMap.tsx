@@ -101,13 +101,12 @@ export const DriverMap = ({ packageSlug }: { packageSlug: CarPackageSlug }) => {
       }
     })
 
-    setTripStatus(TripEvents.DriverTripDecline)
     resetTripStatus()
   }
 
   const parsedRoute = useMemo(() =>
     requestedTrip?.route?.geometry[0]?.coordinates
-      .map((coord) => [coord?.longitude, coord?.latitude] as [number, number])
+      .map((coord) => [coord?.latitude, coord?.longitude] as [number, number])
     , [requestedTrip])
 
   // destination is the last coordinate in the route
@@ -151,13 +150,13 @@ export const DriverMap = ({ packageSlug }: { packageSlug: CarPackageSlug }) => {
           </Marker>
 
           {startLocation && (
-            <Marker position={[startLocation.longitude, startLocation.latitude]} icon={startLocationMarker}>
+            <Marker position={[startLocation.latitude, startLocation.longitude]} icon={startLocationMarker}>
               <Popup>Start Location</Popup>
             </Marker>
           )}
 
           {destination && (
-            <Marker position={[destination.longitude, destination.latitude]} icon={destinationMarker}>
+            <Marker position={[destination.latitude, destination.longitude]} icon={destinationMarker}>
               <Popup>Destination</Popup>
             </Marker>
           )}

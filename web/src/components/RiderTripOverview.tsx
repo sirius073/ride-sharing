@@ -16,6 +16,8 @@ interface TripOverviewProps {
   paymentSession?: PaymentEventSessionCreatedData | null;
   onPackageSelect: (carPackage: RouteFare) => void;
   onCancel: () => void;
+  isLoadingPreview?: boolean;
+  isStartingTrip?: boolean;
 }
 
 export const RiderTripOverview = ({
@@ -25,7 +27,24 @@ export const RiderTripOverview = ({
   paymentSession,
   onPackageSelect,
   onCancel,
+  isLoadingPreview = false,
+  isStartingTrip = false,
 }: TripOverviewProps) => {
+  if (isLoadingPreview) {
+    return (
+      <TripOverviewCard
+        title="Building route..."
+        description="Calculating best trip options for your destination"
+      >
+        <div className="flex flex-col space-y-3 justify-center items-center mb-2">
+          <Skeleton className="h-[96px] w-[250px] rounded-xl" />
+          <Skeleton className="h-4 w-[250px]" />
+          <Skeleton className="h-4 w-[180px]" />
+        </div>
+      </TripOverviewCard>
+    )
+  }
+
   if (!trip) {
     return (
       <TripOverviewCard
@@ -71,10 +90,10 @@ export const RiderTripOverview = ({
     return (
       <TripOverviewCard
         title="Driver assigned!"
-        description="Your driver is on the way, waiting for payment confirmation to show..."
+        description="Your driver is on the way. We are preparing payment confirmation..."
       >
-        <div className="flex flex-col space-y-3 justify-center items-center mb-4">
-          {/* <p>Driver: {trip.id}</p> */}
+        <div className="mb-4">
+          <DriverCard driver={assignedDriver} />
         </div>
         <Button variant="destructive" className="w-full" onClick={onCancel}>
           Cancel current trip
@@ -136,7 +155,22 @@ export const RiderTripOverview = ({
     )
   }
 
-  if (trip.rideFares && trip.rideFares.length >= 0 && !trip.tripID) {
+  if (trip.rideFares && trip.rideFares.length > 0 && !trip.tripID) {
+    if (isStartingTrip) {
+      return (
+        <TripOverviewCard
+          title="Starting trip"
+          description="Please wait while we create your trip and notify nearby drivers"
+        >
+          <div className="flex flex-col space-y-3 justify-center items-center mb-2">
+            <Skeleton className="h-[96px] w-[250px] rounded-xl" />
+            <Skeleton className="h-4 w-[250px]" />
+            <Skeleton className="h-4 w-[180px]" />
+          </div>
+        </TripOverviewCard>
+      )
+    }
+
     return (
       <DriverList
         trip={trip}

@@ -54,5 +54,19 @@ export const DriverTripOverview = ({ trip, status, onAcceptTrip, onDeclineTrip }
     )
   }
 
-  return null
+  if (status === TripEvents.DriverTripDecline) {
+    return (
+      <TripOverviewCard
+        title="Trip declined"
+        description="Waiting for the next rider request..."
+      />
+    )
+  }
+
+  return (
+    <TripOverviewCard
+      title="Ready for requests"
+      description="Keep this screen open to receive trip offers in real time."
+    />
+  )
 }

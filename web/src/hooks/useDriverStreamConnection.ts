@@ -48,14 +48,17 @@ export const useDriverStreamConnection = ({
       const message = JSON.parse(event.data) as ServerWsMessage;
 
       if (!message || !isValidWsMessage(message)) {
-        setError(`Unknown message type "${message}", allowed types are: ${Object.values(TripEvents).join(', ')}`);
+        console.warn('Ignoring unknown websocket message', message);
         return;
       }
 
       switch (message.type) {
         case TripEvents.DriverTripRequest:
-          const trip = (message.data?.trip) ?? message.data;
-          setRequestedTrip(trip);
+          const payload = message.data as Trip | { trip: Trip };
+          const requestedTrip = (typeof payload === 'object' && payload !== null && 'trip' in payload)
+            ? payload.trip
+            : payload;
+          setRequestedTrip(requestedTrip);
           break;
         case TripEvents.DriverRegister:
           setDriver(message.data);
@@ -86,7 +89,21 @@ export const useDriverStreamConnection = ({
       }
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [userID]);
+  }, [userID, packageSlug]);
+
+  useEffect(() => {
+    if (!ws || ws.readyState !== WebSocket.OPEN) {
+      return;
+    }
+
+    ws.send(JSON.stringify({
+      type: TripEvents.DriverLocation,
+      data: {
+        location,
+        geohash,
+      }
+    }));
+  }, [ws, location, geohash]);
 
   const sendMessage = (message: ClientWsMessage) => {
     if (ws?.readyState === WebSocket.OPEN) {
@@ -99,6 +116,7 @@ export const useDriverStreamConnection = ({
   const resetTripStatus = () => {
     setTripStatus(null);
     setRequestedTrip(null);
+    setError(null);
   }
 
   return { error, tripStatus, driver, requestedTrip, resetTripStatus, sendMessage, setTripStatus };
